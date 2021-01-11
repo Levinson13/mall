@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.cn.mall.consts.MallConsts.ROOT_PARENT_ID;
@@ -25,6 +26,7 @@ public class CategoryServriceImpl implements ICategoryService {
     /**
      * 耗时：http(请求微信api) > 磁盘 > 内存
      * mysql（内网 + 磁盘）
+     *
      * @return
      */
     @Override
@@ -45,11 +47,27 @@ public class CategoryServriceImpl implements ICategoryService {
                 .collect(Collectors.toList());
 
         // 查询子目录
-        findSubCategory(categoryVoList,categories);
+        findSubCategory(categoryVoList, categories);
         return ResponseVo.success(categoryVoList);
     }
 
-    private void findSubCategory(List<CategoryVo> categoryVoList ,List<Category> categories ){
+    @Override
+    public void findSubCategoryId(Integer id, Set<Integer> resultSet) {
+        List<Category> categories = categoryMapper.selectAll();
+        findSubCategoryId(id, resultSet, categories);
+    }
+
+    public void findSubCategoryId(Integer id, Set<Integer> resultSet, List<Category> categories) {
+        for (Category category : categories) {
+            if (category.getParentId().equals(id)) {
+                resultSet.add(category.getId());
+
+                findSubCategoryId(category.getId(), resultSet, categories);
+            }
+        }
+    }
+
+    private void findSubCategory(List<CategoryVo> categoryVoList, List<Category> categories) {
         for (CategoryVo categoryVo : categoryVoList) {
             List<CategoryVo> subCategoryVoList = new ArrayList<>();
 
@@ -64,14 +82,14 @@ public class CategoryServriceImpl implements ICategoryService {
 
                 categoryVo.setSubCategories(subCategoryVoList);
 
-                findSubCategory(subCategoryVoList,categories);
+                findSubCategory(subCategoryVoList, categories);
             }
         }
     }
 
-    private CategoryVo category2CategoryVo(Category category){
+    private CategoryVo category2CategoryVo(Category category) {
         CategoryVo categoryVo = new CategoryVo();
-        BeanUtils.copyProperties(category,categoryVo);
+        BeanUtils.copyProperties(category, categoryVo);
         return categoryVo;
     }
 }
