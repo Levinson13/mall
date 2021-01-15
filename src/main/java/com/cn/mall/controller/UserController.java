@@ -28,12 +28,13 @@ public class UserController {
     private IUserService iUserService;
 
     @PostMapping("/user/register")
-    public ResponseVo register(@Valid  @RequestBody UserRegisterForm userForm, BindingResult bindingResult){
+    public ResponseVo register(@Valid  @RequestBody UserRegisterForm userForm
+            , BindingResult bindingResult){
 
-        if (bindingResult.hasErrors()) {
-            log.info("注册提交的参数有误,{}",bindingResult.getFieldError().getDefaultMessage());
-            return ResponseVo.error(PARAM_ERROR,bindingResult);
-        }
+//        if (bindingResult.hasErrors()) {
+//            log.info("注册提交的参数有误,{}",bindingResult.getFieldError().getDefaultMessage());
+//            return ResponseVo.error(PARAM_ERROR,bindingResult);
+//        }
         User user = new User();
         BeanUtils.copyProperties(userForm,user);
         return iUserService.register(user);
@@ -41,11 +42,11 @@ public class UserController {
 
     @PostMapping("/user/login")
     public ResponseVo<User> login(@Valid @RequestBody UserLoginForm userLoginForm,
-                                  BindingResult bindingResult,
+//                                  BindingResult bindingResult,
                                   HttpSession session){
-        if (bindingResult.hasErrors()) {
-            return ResponseVo.error(PARAM_ERROR,bindingResult);
-        }
+//        if (bindingResult.hasErrors()) {
+//            return ResponseVo.error(PARAM_ERROR,bindingResult);
+//        }
         ResponseVo<User> userResponseVo = iUserService.login(userLoginForm.getUsername(), userLoginForm.getPassword());
 
         // 设置Session

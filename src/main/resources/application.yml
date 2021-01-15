@@ -5,6 +5,9 @@ spring:
     username: root
     password: 123456
     url: jdbc:mysql://localhost:3306/mail?characterEncoding=utf-8&useSSL=false&serverTimezone=UTC
+  redis:
+    host: 127.0.0.1
+    port: 6379
 
 #mybatis配置
 mybatis:
