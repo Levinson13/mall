@@ -11,6 +11,8 @@ import com.cn.mall.service.IOrderService;
 import com.cn.mall.vo.OrderItemVo;
 import com.cn.mall.vo.OrderVo;
 import com.cn.mall.vo.ResponseVo;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -129,6 +131,35 @@ public class OrderServiceImpl implements IOrderService {
         OrderVo orderVo = buildOrderVo(order, orderItemList, shipping);
 
         return ResponseVo.success(orderVo);
+    }
+
+    @Override
+    public ResponseVo<PageInfo> list(Integer uid, Integer pageNum, Integer pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+        List<Order> orderList = orderMapper.selectByUid(uid);
+
+        Set<Long> orderNoSet = orderList.stream()
+                .map(Order::getOrderNo)
+                .collect(Collectors.toSet());
+        List<OrderItem> orderItemList = orderItemMapper.selectByOrderNoSet(orderNoSet);
+
+        Set<Integer> shippingIdSet = orderList.stream()
+                .map(Order::getShippingId)
+                .collect(Collectors.toSet());
+
+        List<Shipping> shippingList = shippingMapper.selectById(shippingIdSet);
+
+//        for (Order order : orderList) {
+//            buildOrderVo(order, or);
+//        }
+
+        PageInfo pageInfo = new PageInfo(orderList);
+        return ResponseVo.success(pageInfo);
+    }
+
+    @Override
+    public ResponseVo<OrderVo> detail(Integer uid, Long orderNo) {
+        return null;
     }
 
     private OrderVo buildOrderVo(Order order, List<OrderItem> orderItemList, Shipping shipping) {
